@@ -1,0 +1,12 @@
+schema_version: '1.0'
+repo: tab-bookmark-manager
+organ: III
+display_name: AI-powered tab and bookmark management SaaS with ML services and browser
+  extension
+delivery:
+- platform: web_app
+  status: not_started
+revenue:
+- platform: freemium
+  status: planned
+  priority: critical
