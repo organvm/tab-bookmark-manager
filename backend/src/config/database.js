@@ -97,8 +97,24 @@ async function initializeDatabase() {
         username VARCHAR(50) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         email VARCHAR(100) UNIQUE NOT NULL,
+        plan_tier VARCHAR(20) DEFAULT 'free',
+        subscription_status VARCHAR(50) DEFAULT 'inactive',
+        subscription_provider VARCHAR(50),
+        subscription_customer_id VARCHAR(255),
+        subscription_id VARCHAR(255),
+        subscription_current_period_end TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS user_devices (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        device_id VARCHAR(255) NOT NULL,
+        label VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, device_id)
       );
 
       CREATE TABLE IF NOT EXISTS revoked_tokens (
@@ -112,6 +128,12 @@ async function initializeDatabase() {
       ALTER TABLE bookmarks ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);
       ALTER TABLE suggestions ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);
       ALTER TABLE archived_pages ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS plan_tier VARCHAR(20) DEFAULT 'free';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'inactive';
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_provider VARCHAR(50);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_customer_id VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_id VARCHAR(255);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMP;
     `);
     logger.info('Database schema initialized successfully');
   } catch (err) {
@@ -201,8 +223,27 @@ async function initializeTestDatabase() {
           username TEXT UNIQUE NOT NULL,
           password_hash TEXT NOT NULL,
           email TEXT UNIQUE NOT NULL,
+          plan_tier TEXT DEFAULT 'free',
+          subscription_status TEXT DEFAULT 'inactive',
+          subscription_provider TEXT,
+          subscription_customer_id TEXT,
+          subscription_id TEXT,
+          subscription_current_period_end DATETIME,
           created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+
+      pool.run(`
+        CREATE TABLE user_devices (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          device_id TEXT NOT NULL,
+          label TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+          UNIQUE(user_id, device_id),
+          FOREIGN KEY (user_id) REFERENCES users(id)
         );
       `);
 

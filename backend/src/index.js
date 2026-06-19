@@ -13,6 +13,7 @@ const suggestionsRoutes = require('./routes/suggestions');
 const archiveRoutes = require('./routes/archive');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
+const billingRoutes = require('./routes/billing');
 const { initializeDatabase } = require('./config/database');
 const { connectRedis } = require('./config/redis');
 const automationEngine = require('./services/automationEngine');
@@ -29,7 +30,11 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(helmet());
 app.use(cors());
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf.toString('utf8');
+  }
+}));
 app.use(morgan('combined', { stream: { write: message => logger.info(message.trim()) } }));
 
 const limiter = rateLimit({
@@ -55,6 +60,7 @@ app.use('/api/suggestions', suggestionsRoutes);
 app.use('/api/archive', archiveRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/billing', billingRoutes);
 
 // Health check
 app.get('/health', async (req, res) => {

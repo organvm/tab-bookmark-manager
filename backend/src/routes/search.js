@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const searchController = require('../controllers/searchController');
 const authMiddleware = require('../middleware/authMiddleware');
+const {
+  registerDeviceMiddleware,
+  requireFeature,
+} = require('../middleware/entitlementMiddleware');
 
 /**
  * @swagger
@@ -26,7 +30,7 @@ const authMiddleware = require('../middleware/authMiddleware');
  *       200:
  *         description: Search results
  */
-router.post('/semantic', authMiddleware, searchController.semanticSearch);
+router.post('/semantic', authMiddleware, registerDeviceMiddleware, requireFeature('ml'), searchController.semanticSearch);
 
 /**
  * @swagger
@@ -46,7 +50,7 @@ router.post('/semantic', authMiddleware, searchController.semanticSearch);
  *       200:
  *         description: Search results
  */
-router.get('/text', authMiddleware, searchController.textSearch);
+router.get('/text', authMiddleware, registerDeviceMiddleware, searchController.textSearch);
 
 /**
  * @swagger
@@ -66,6 +70,6 @@ router.get('/text', authMiddleware, searchController.textSearch);
  *       200:
  *         description: Similar items
  */
-router.get('/similar/:id', authMiddleware, searchController.findSimilar);
+router.get('/similar/:id', authMiddleware, registerDeviceMiddleware, requireFeature('ml'), searchController.findSimilar);
 
 module.exports = router;

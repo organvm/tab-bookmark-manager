@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { contentAnalysisQueue } = require('../config/queue');
+const { getUserEntitlements } = require('../services/entitlementService');
 const logger = require('../utils/logger');
 
 exports.createBookmark = async (req, res) => {
@@ -14,8 +15,10 @@ exports.createBookmark = async (req, res) => {
     
     const bookmark = result.rows[0];
     
-    // Queue content analysis
-    if (content) {
+    const entitlements = req.entitlements || await getUserEntitlements(userId);
+
+    // Queue content analysis for Pro users only.
+    if (content && entitlements?.features?.ml) {
       await contentAnalysisQueue.add({
         itemId: bookmark.id,
         itemType: 'bookmark',
