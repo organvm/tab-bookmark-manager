@@ -20,9 +20,11 @@ const automationEngine = require('./services/automationEngine');
 const rateLimit = require('express-rate-limit');
 const { errorHandler, notFoundHandler, handleUncaughtException, handleUnhandledRejection } = require('./middleware/errorHandler');
 
-// Handle uncaught exceptions and unhandled rejections
-handleUncaughtException();
-handleUnhandledRejection();
+// Handle uncaught exceptions and unhandled rejections outside the Jest import path.
+if (process.env.NODE_ENV !== 'test') {
+  handleUncaughtException();
+  handleUnhandledRejection();
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -115,13 +117,15 @@ async function startServer() {
   }
 }
 
-startServer();
+if (require.main === module) {
+  startServer();
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  automationEngine.stop();
-  process.exit(0);
-});
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    logger.info('SIGTERM received, shutting down gracefully');
+    automationEngine.stop();
+    process.exit(0);
+  });
+}
 
 module.exports = { app, startServer };

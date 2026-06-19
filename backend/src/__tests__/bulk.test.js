@@ -1,5 +1,6 @@
 const request = require('supertest');
 const { app } = require('../index');
+const db = require('../config/db');
 const { pool } = require('../config/database');
 const { bulkImportQueue } = require('../config/queue');
 
@@ -25,15 +26,11 @@ describe('Bulk Import Endpoints', () => {
         password: 'password123',
       });
     token = loginRes.body.token;
-  });
 
-  afterAll(async () => {
-    await new Promise(resolve => pool.run('DELETE FROM users WHERE email = ?', ['test@example.com'], resolve));
-    if (process.env.NODE_ENV !== 'test') {
-      await pool.end();
-    } else {
-      pool.close();
-    }
+    await db.run(
+      'UPDATE users SET plan_tier = $1, subscription_status = $2 WHERE id = $3',
+      ['pro', 'active', userId]
+    );
   });
 
   it('should queue a bulk import job for tabs', async () => {

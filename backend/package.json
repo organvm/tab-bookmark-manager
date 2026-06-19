@@ -6,9 +6,9 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "jest --coverage",
-    "test:auth": "NODE_ENV=test JWT_SECRET=testsecret jest --forceExit --detectOpenHandles src/__tests__/auth.test.js",
-    "test:bulk": "NODE_ENV=test JWT_SECRET=testsecret jest --forceExit --detectOpenHandles src/__tests__/bulk.test.js",
+    "test": "NODE_ENV=test JWT_SECRET=testsecret jest --coverage --runInBand",
+    "test:auth": "NODE_ENV=test JWT_SECRET=testsecret jest src/__tests__/auth.test.js",
+    "test:bulk": "NODE_ENV=test JWT_SECRET=testsecret jest src/__tests__/bulk.test.js",
     "lint": "eslint src/**/*.js"
   },
   "keywords": [

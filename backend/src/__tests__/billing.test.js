@@ -2,18 +2,17 @@ const request = require('supertest');
 const { app } = require('../index');
 const db = require('../config/db');
 const { pool } = require('../config/database');
-const {
-  archivalQueue,
-  bulkImportQueue,
-  contentAnalysisQueue,
-  suggestionQueue,
-} = require('../config/queue');
+const { bulkImportQueue } = require('../config/queue');
 
 describe('Freemium billing and entitlements', () => {
   let token;
   let userId;
+  let originalCheckoutProvider;
+  let originalCheckoutUrl;
 
   beforeAll(async () => {
+    originalCheckoutProvider = process.env.PRO_CHECKOUT_PROVIDER;
+    originalCheckoutUrl = process.env.PRO_CHECKOUT_URL;
     process.env.PRO_CHECKOUT_PROVIDER = 'stripe';
     process.env.PRO_CHECKOUT_URL = 'https://checkout.example/pro';
 
@@ -39,16 +38,17 @@ describe('Freemium billing and entitlements', () => {
     token = loginRes.body.token;
   });
 
-  afterAll(async () => {
-    await new Promise(resolve => pool.run('DELETE FROM users WHERE email = ?', ['freemium@example.com'], resolve));
-    await contentAnalysisQueue.close();
-    await archivalQueue.close();
-    await suggestionQueue.close();
-    await bulkImportQueue.close();
-    if (process.env.NODE_ENV !== 'test') {
-      await pool.end();
+  afterAll(() => {
+    if (originalCheckoutProvider === undefined) {
+      delete process.env.PRO_CHECKOUT_PROVIDER;
     } else {
-      pool.close();
+      process.env.PRO_CHECKOUT_PROVIDER = originalCheckoutProvider;
+    }
+
+    if (originalCheckoutUrl === undefined) {
+      delete process.env.PRO_CHECKOUT_URL;
+    } else {
+      process.env.PRO_CHECKOUT_URL = originalCheckoutUrl;
     }
   });
 

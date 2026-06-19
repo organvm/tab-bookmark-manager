@@ -1,7 +1,6 @@
 const request = require('supertest');
 const { app } = require('../index');
 const { pool } = require('../config/database');
-const { contentAnalysisQueue, archivalQueue, suggestionQueue } = require('../config/queue');
 
 describe('User Profile Management', () => {
   let token;
@@ -27,19 +26,6 @@ describe('User Profile Management', () => {
       });
     
     token = loginRes.body.token;
-  });
-
-  afterAll(async () => {
-    await new Promise(resolve => pool.run('DELETE FROM users WHERE email = ?', ['profiletest@example.com'], resolve));
-    await new Promise(resolve => pool.run('DELETE FROM users WHERE email = ?', ['newemail@example.com'], resolve));
-    await contentAnalysisQueue.close();
-    await archivalQueue.close();
-    await suggestionQueue.close();
-    if (process.env.NODE_ENV !== 'test') {
-      await pool.end();
-    } else {
-      pool.close();
-    }
   });
 
   describe('GET /api/user/profile', () => {

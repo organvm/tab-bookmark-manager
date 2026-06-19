@@ -3,10 +3,14 @@
   "coverageDirectory": "coverage",
   "collectCoverageFrom": [
     "src/**/*.js",
+    "!src/__tests__/**",
     "!src/index.js"
   ],
   "testMatch": [
     "**/__tests__/**/*.js",
     "**/?(*.)+(spec|test).js"
+  ],
+  "setupFilesAfterEnv": [
+    "<rootDir>/src/__tests__/setup.js"
   ]
 }

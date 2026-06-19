@@ -1,7 +1,6 @@
 const request = require('supertest');
 const { app } = require('../index');
 const { pool } = require('../config/database');
-const { contentAnalysisQueue, archivalQueue, suggestionQueue } = require('../config/queue');
 
 describe('Auth Endpoints', () => {
   let token;
@@ -16,18 +15,6 @@ describe('Auth Endpoints', () => {
         email: 'test@example.com',
         password: 'password123',
       });
-  });
-
-  afterAll(async () => {
-    await new Promise(resolve => pool.run('DELETE FROM users WHERE email = ?', ['test@example.com'], resolve));
-    await contentAnalysisQueue.close();
-    await archivalQueue.close();
-    await suggestionQueue.close();
-    if (process.env.NODE_ENV !== 'test') {
-      await pool.end();
-    } else {
-      pool.close();
-    }
   });
 
   it('should login a user and return a token', async () => {
