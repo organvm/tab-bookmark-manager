@@ -2,6 +2,11 @@ const express = require('express');
 const router = express.Router();
 const bookmarkController = require('../controllers/bookmarkController');
 const authMiddleware = require('../middleware/authMiddleware');
+const {
+  enforceBookmarkLimit,
+  registerDeviceMiddleware,
+  requireFeature,
+} = require('../middleware/entitlementMiddleware');
 
 /**
  * @swagger
@@ -30,7 +35,7 @@ const authMiddleware = require('../middleware/authMiddleware');
  *       201:
  *         description: Bookmark created successfully
  */
-router.post('/', authMiddleware, bookmarkController.createBookmark);
+router.post('/', authMiddleware, registerDeviceMiddleware, enforceBookmarkLimit, bookmarkController.createBookmark);
 
 /**
  * @swagger
@@ -44,7 +49,7 @@ router.post('/', authMiddleware, bookmarkController.createBookmark);
  *       201:
  *         description: Bookmarks created successfully
  */
-router.post('/bulk', authMiddleware, bookmarkController.bulkCreateBookmarks);
+router.post('/bulk', authMiddleware, registerDeviceMiddleware, requireFeature('sync'), bookmarkController.bulkCreateBookmarks);
 
 /**
  * @swagger
@@ -58,7 +63,7 @@ router.post('/bulk', authMiddleware, bookmarkController.bulkCreateBookmarks);
  *       200:
  *         description: List of bookmarks
  */
-router.get('/', authMiddleware, bookmarkController.getAllBookmarks);
+router.get('/', authMiddleware, registerDeviceMiddleware, bookmarkController.getAllBookmarks);
 
 /**
  * @swagger
@@ -78,7 +83,7 @@ router.get('/', authMiddleware, bookmarkController.getAllBookmarks);
  *       200:
  *         description: Bookmark details
  */
-router.get('/:id', authMiddleware, bookmarkController.getBookmarkById);
+router.get('/:id', authMiddleware, registerDeviceMiddleware, bookmarkController.getBookmarkById);
 
 /**
  * @swagger
@@ -98,7 +103,7 @@ router.get('/:id', authMiddleware, bookmarkController.getBookmarkById);
  *       200:
  *         description: Bookmark updated successfully
  */
-router.put('/:id', authMiddleware, bookmarkController.updateBookmark);
+router.put('/:id', authMiddleware, registerDeviceMiddleware, bookmarkController.updateBookmark);
 
 /**
  * @swagger
@@ -118,7 +123,7 @@ router.put('/:id', authMiddleware, bookmarkController.updateBookmark);
  *       200:
  *         description: Bookmark deleted successfully
  */
-router.delete('/:id', authMiddleware, bookmarkController.deleteBookmark);
+router.delete('/:id', authMiddleware, registerDeviceMiddleware, bookmarkController.deleteBookmark);
 
 /**
  * @swagger
@@ -138,6 +143,6 @@ router.delete('/:id', authMiddleware, bookmarkController.deleteBookmark);
  *       200:
  *         description: Bookmark archived successfully
  */
-router.post('/:id/archive', authMiddleware, bookmarkController.archiveBookmark);
+router.post('/:id/archive', authMiddleware, registerDeviceMiddleware, bookmarkController.archiveBookmark);
 
 module.exports = router;

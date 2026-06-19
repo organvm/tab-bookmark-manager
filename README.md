@@ -241,12 +241,21 @@ The browser extension is a Manifest V3 Chrome/Edge extension that serves as the 
 - **Automatic tab capture.** Every new tab and tab update is automatically sent to the backend for storage and analysis. No manual action required.
 - **Bookmark synchronization.** Bookmark creation events are intercepted and forwarded to the backend, keeping the system in sync with the browser's native bookmark bar.
 - **Content extraction.** A content script runs on every page at document idle, extracting the page's text content for NLP analysis.
-- **Popup interface.** Click the extension icon to access search (text and semantic), view AI-generated suggestions, see collection statistics, and trigger manual sync operations.
+- **Popup interface.** Click the extension icon to sign in, view plan usage, access search (text and semantic), view AI-generated suggestions, see collection statistics, trigger manual sync operations, and open the Pro checkout flow.
 - **Permissions.** The extension requires `tabs`, `bookmarks`, `storage`, `activeTab`, and `scripting` permissions. Host permissions cover `localhost:3000` for API communication and `<all_urls>` for content extraction.
 
 ---
 
 ## Core Features
+
+### Freemium Pro Gate
+
+The product ships with a Free tier and a Pro tier at **$4.99/mo**:
+
+- **Free:** 1 device, configurable bookmark limit (`FREE_BOOKMARK_LIMIT`, default 100), text search, basic tab/bookmark capture.
+- **Pro:** Unlimited devices/bookmarks, bulk tab and bookmark sync, semantic search, similar-item search, AI suggestions, and background ML enrichment.
+
+The extension stores a per-install device ID in `chrome.storage.local` and sends it as `X-Device-Id`. The backend registers devices per user and returns HTTP 402 with upgrade metadata when a free user crosses a gate. Pro checkout is opened from inside the extension through `/api/billing/checkout`, using a configured Lemon Squeezy or Stripe hosted checkout/payment link.
 
 ### AI-Powered Content Analysis
 
@@ -337,6 +346,9 @@ curl http://localhost:3000/api/tabs \
 | Auth         | POST   | `/api/auth/register`            | Register new user                |
 | Auth         | POST   | `/api/auth/login`               | Login, receive JWT               |
 | Auth         | POST   | `/api/auth/logout`              | Logout, revoke token             |
+| Billing      | GET    | `/api/billing/plan`             | Current tier, limits, usage      |
+| Billing      | POST   | `/api/billing/checkout`         | Create/open Pro checkout URL     |
+| Billing      | POST   | `/api/billing/webhook`          | Apply provider subscription event |
 | User         | GET    | `/api/user/profile`             | Get profile                      |
 | User         | PUT    | `/api/user/profile`             | Update username                  |
 | User         | PUT    | `/api/user/email`               | Update email                     |
@@ -444,6 +456,20 @@ REDIS_URL=redis://localhost:6379
 ML_SERVICE_URL=http://localhost:5000
 ARCHIVE_DIR=./archives
 LOG_LEVEL=info
+
+# Freemium and billing
+FREE_BOOKMARK_LIMIT=100
+FREE_DEVICE_LIMIT=1
+PRO_CHECKOUT_PROVIDER=stripe
+PRO_CHECKOUT_URL=https://your-provider-checkout-link.example
+# Or set one of these instead of PRO_CHECKOUT_URL:
+LEMON_SQUEEZY_CHECKOUT_URL=
+STRIPE_CHECKOUT_URL=
+
+# Optional webhook verification
+LEMON_SQUEEZY_WEBHOOK_SECRET=
+STRIPE_WEBHOOK_SECRET=
+BILLING_WEBHOOK_SECRET=
 ```
 
 ### ML Service Environment Variables

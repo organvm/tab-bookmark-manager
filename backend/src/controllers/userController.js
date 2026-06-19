@@ -24,7 +24,10 @@ exports.getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
     const result = await db.query(
-      'SELECT id, username, email, created_at FROM users WHERE id = $1',
+      `SELECT id, username, email, plan_tier, subscription_status,
+              subscription_provider, subscription_current_period_end, created_at
+         FROM users
+        WHERE id = $1`,
       [userId]
     );
 

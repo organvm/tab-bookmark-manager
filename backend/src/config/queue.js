@@ -20,15 +20,17 @@ if (process.env.NODE_ENV === 'test') {
   suggestionQueue = new Queue('suggestion', {
     createClient: () => redisClient,
   });
-const bulkImportQueue = new Queue('bulk-import', {
-  createClient: () => redisClient,
-});
+  bulkImportQueue = new Queue('bulk-import', {
+    createClient: () => redisClient,
+  });
 }
 
 // Bulk import job processor
 bulkImportQueue.process(async (job) => {
   const { items, userId, type } = job.data;
   const db = require('../config/db');
+  const { getUserEntitlements } = require('../services/entitlementService');
+  const entitlements = await getUserEntitlements(userId);
 
   const tableName = type === 'tab' ? 'tabs' : 'bookmarks';
 
@@ -50,7 +52,7 @@ bulkImportQueue.process(async (job) => {
 
     const newItem = result.rows[0];
 
-    if (content) {
+    if (content && entitlements?.features?.ml) {
       await contentAnalysisQueue.add({
         itemId: newItem.id,
         itemType: type,

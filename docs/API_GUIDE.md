@@ -23,6 +23,11 @@ Authorization: Bearer <your-jwt-token>
 - **POST** `/api/auth/login` - Login and receive JWT token
 - **POST** `/api/auth/logout` - Logout and revoke token
 
+### Billing and Entitlements
+- **GET** `/api/billing/plan` - Get current tier, free limits, feature flags, and usage
+- **POST** `/api/billing/checkout` - Create a hosted Pro checkout URL for $4.99/mo
+- **POST** `/api/billing/webhook` - Apply Lemon Squeezy or Stripe subscription events
+
 ### User Profile Management
 - **GET** `/api/user/profile` - Get user profile information
 - **PUT** `/api/user/profile` - Update username
@@ -88,6 +93,7 @@ The API uses standard HTTP status codes and returns JSON error responses:
 - **201** - Created
 - **400** - Bad Request (validation error)
 - **401** - Unauthorized (authentication required)
+- **402** - Payment Required (Pro upgrade required for gated feature or limit)
 - **403** - Forbidden (insufficient permissions)
 - **404** - Not Found
 - **409** - Conflict (e.g., duplicate email)

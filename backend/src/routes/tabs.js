@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const tabController = require('../controllers/tabController');
 const authMiddleware = require('../middleware/authMiddleware');
+const {
+  registerDeviceMiddleware,
+  requireFeature,
+} = require('../middleware/entitlementMiddleware');
 
 /**
  * @swagger
@@ -34,7 +38,7 @@ const authMiddleware = require('../middleware/authMiddleware');
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authMiddleware, tabController.createTab);
+router.post('/', authMiddleware, registerDeviceMiddleware, tabController.createTab);
 
 /**
  * @swagger
@@ -64,7 +68,7 @@ router.post('/', authMiddleware, tabController.createTab);
  *       201:
  *         description: Tabs created successfully
  */
-router.post('/bulk', authMiddleware, tabController.bulkCreateTabs);
+router.post('/bulk', authMiddleware, registerDeviceMiddleware, requireFeature('sync'), tabController.bulkCreateTabs);
 
 /**
  * @swagger
@@ -78,7 +82,21 @@ router.post('/bulk', authMiddleware, tabController.bulkCreateTabs);
  *       200:
  *         description: List of tabs
  */
-router.get('/', authMiddleware, tabController.getAllTabs);
+router.get('/', authMiddleware, registerDeviceMiddleware, tabController.getAllTabs);
+
+/**
+ * @swagger
+ * /api/tabs/stale/detect:
+ *   get:
+ *     summary: Detect stale tabs
+ *     tags: [Tabs]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of stale tabs
+ */
+router.get('/stale/detect', authMiddleware, registerDeviceMiddleware, requireFeature('ml'), tabController.detectStaleTabs);
 
 /**
  * @swagger
@@ -100,7 +118,7 @@ router.get('/', authMiddleware, tabController.getAllTabs);
  *       404:
  *         description: Tab not found
  */
-router.get('/:id', authMiddleware, tabController.getTabById);
+router.get('/:id', authMiddleware, registerDeviceMiddleware, tabController.getTabById);
 
 /**
  * @swagger
@@ -130,7 +148,7 @@ router.get('/:id', authMiddleware, tabController.getTabById);
  *       200:
  *         description: Tab updated successfully
  */
-router.put('/:id', authMiddleware, tabController.updateTab);
+router.put('/:id', authMiddleware, registerDeviceMiddleware, tabController.updateTab);
 
 /**
  * @swagger
@@ -150,7 +168,7 @@ router.put('/:id', authMiddleware, tabController.updateTab);
  *       200:
  *         description: Tab deleted successfully
  */
-router.delete('/:id', authMiddleware, tabController.deleteTab);
+router.delete('/:id', authMiddleware, registerDeviceMiddleware, tabController.deleteTab);
 
 /**
  * @swagger
@@ -170,20 +188,6 @@ router.delete('/:id', authMiddleware, tabController.deleteTab);
  *       200:
  *         description: Tab archived successfully
  */
-router.post('/:id/archive', authMiddleware, tabController.archiveTab);
-
-/**
- * @swagger
- * /api/tabs/stale/detect:
- *   get:
- *     summary: Detect stale tabs
- *     tags: [Tabs]
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: List of stale tabs
- */
-router.get('/stale/detect', authMiddleware, tabController.detectStaleTabs);
+router.post('/:id/archive', authMiddleware, registerDeviceMiddleware, tabController.archiveTab);
 
 module.exports = router;

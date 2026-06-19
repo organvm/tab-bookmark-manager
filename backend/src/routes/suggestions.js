@@ -2,6 +2,12 @@ const express = require('express');
 const router = express.Router();
 const suggestionController = require('../controllers/suggestionController');
 const authMiddleware = require('../middleware/authMiddleware');
+const {
+  registerDeviceMiddleware,
+  requireFeature,
+} = require('../middleware/entitlementMiddleware');
+
+const proOnly = [authMiddleware, registerDeviceMiddleware, requireFeature('ml')];
 
 /**
  * @swagger
@@ -15,7 +21,7 @@ const authMiddleware = require('../middleware/authMiddleware');
  *       200:
  *         description: List of suggestions
  */
-router.get('/', authMiddleware, suggestionController.getAllSuggestions);
+router.get('/', proOnly, suggestionController.getAllSuggestions);
 
 /**
  * @swagger
@@ -29,7 +35,7 @@ router.get('/', authMiddleware, suggestionController.getAllSuggestions);
  *       200:
  *         description: List of duplicate suggestions
  */
-router.get('/duplicates', authMiddleware, suggestionController.getDuplicates);
+router.get('/duplicates', proOnly, suggestionController.getDuplicates);
 
 /**
  * @swagger
@@ -43,7 +49,7 @@ router.get('/duplicates', authMiddleware, suggestionController.getDuplicates);
  *       200:
  *         description: List of stale tab suggestions
  */
-router.get('/stale', authMiddleware, suggestionController.getStaleTabs);
+router.get('/stale', proOnly, suggestionController.getStaleTabs);
 
 /**
  * @swagger
@@ -63,7 +69,7 @@ router.get('/stale', authMiddleware, suggestionController.getStaleTabs);
  *       200:
  *         description: List of related content suggestions
  */
-router.get('/related/:id', authMiddleware, suggestionController.getRelatedContent);
+router.get('/related/:id', proOnly, suggestionController.getRelatedContent);
 
 /**
  * @swagger
@@ -77,7 +83,7 @@ router.get('/related/:id', authMiddleware, suggestionController.getRelatedConten
  *       200:
  *         description: Suggestions generated successfully
  */
-router.post('/generate', authMiddleware, suggestionController.generateSuggestions);
+router.post('/generate', proOnly, suggestionController.generateSuggestions);
 
 /**
  * @swagger
@@ -97,7 +103,7 @@ router.post('/generate', authMiddleware, suggestionController.generateSuggestion
  *       200:
  *         description: Suggestion accepted successfully
  */
-router.put('/:id/accept', authMiddleware, suggestionController.acceptSuggestion);
+router.put('/:id/accept', proOnly, suggestionController.acceptSuggestion);
 
 /**
  * @swagger
@@ -117,6 +123,6 @@ router.put('/:id/accept', authMiddleware, suggestionController.acceptSuggestion)
  *       200:
  *         description: Suggestion rejected successfully
  */
-router.put('/:id/reject', authMiddleware, suggestionController.rejectSuggestion);
+router.put('/:id/reject', proOnly, suggestionController.rejectSuggestion);
 
 module.exports = router;
