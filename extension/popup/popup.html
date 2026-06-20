@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tab & Bookmark Manager</title>
+    <link rel="stylesheet" href="popup.css">
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <main class="container">
+      <header class="app-header">
+        <div>
+          <h1>Tab & Bookmark Manager</h1>
+          <p id="accountEmail" class="account-email">Not signed in</p>
+        </div>
+        <button id="logoutBtn" class="btn btn-ghost app-section" type="button" hidden>Sign out</button>
+      </header>
+
+      <section id="authSection" class="panel" aria-labelledby="authTitle">
+        <h2 id="authTitle">Account</h2>
+        <div class="field-stack">
+          <input id="usernameInput" type="text" autocomplete="username" placeholder="Username">
+          <input id="emailInput" type="email" autocomplete="email" placeholder="Email">
+          <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Password">
+        </div>
+        <div class="button-row">
+          <button id="loginBtn" class="btn btn-primary" type="button">Sign in</button>
+          <button id="registerBtn" class="btn btn-info" type="button">Create account</button>
+        </div>
+      </section>
+
+      <section id="planSection" class="panel" aria-labelledby="planTitle" hidden>
+        <div class="plan-header">
+          <h2 id="planTitle">Plan</h2>
+          <span id="planBadge" class="plan-badge plan-badge-free">Free</span>
+        </div>
+
+        <div class="usage-row">
+          <span>Bookmarks</span>
+          <strong id="bookmarkUsage">-</strong>
+        </div>
+        <div class="meter" aria-hidden="true">
+          <span id="bookmarkMeter"></span>
+        </div>
+        <div class="usage-row">
+          <span>Devices</span>
+          <strong id="deviceUsage">-</strong>
+        </div>
+
+        <button id="upgradeBtn" class="btn btn-upgrade" type="button">Upgrade to Pro - $4.99/mo</button>
+      </section>
+
+      <section class="panel app-section" aria-labelledby="captureTitle" hidden>
+        <h2 id="captureTitle">Capture</h2>
+        <div class="actions">
+          <button id="captureTab" class="btn btn-primary" type="button">Capture current tab</button>
+          <button id="closeSavedTabs" class="btn btn-info" type="button">Close saved tabs</button>
+          <button id="findSavedBookmarks" class="btn btn-info" type="button">Find saved bookmarks</button>
+        </div>
+      </section>
+
+      <section class="panel app-section" aria-labelledby="syncTitle" hidden>
+        <h2 id="syncTitle">Sync</h2>
+        <div class="actions">
+          <button id="syncTabs" class="btn btn-secondary" type="button" data-pro-only="true">Sync all tabs <span>Pro</span></button>
+          <button id="syncBookmarks" class="btn btn-secondary" type="button" data-pro-only="true">Sync all bookmarks <span>Pro</span></button>
+        </div>
+      </section>
+
+      <section class="panel app-section search" aria-labelledby="searchTitle" hidden>
+        <h2 id="searchTitle">Search</h2>
+        <input id="searchInput" type="search" autocomplete="off" placeholder="Search saved tabs and bookmarks">
+        <div class="button-row">
+          <button id="searchBtn" class="btn btn-primary" type="button">Text search</button>
+          <button id="semanticSearchBtn" class="btn btn-secondary" type="button" data-pro-only="true">Semantic <span>Pro</span></button>
+        </div>
+      </section>
+
+      <section class="panel app-section" aria-labelledby="suggestionsTitle" hidden>
+        <div class="plan-header">
+          <h2 id="suggestionsTitle">Suggestions</h2>
+          <button id="getSuggestions" class="btn btn-ghost" type="button" data-pro-only="true">Refresh <span>Pro</span></button>
+        </div>
+        <div id="suggestionsContainer">
+          <p class="muted">No results yet.</p>
+        </div>
+      </section>
+
+      <section class="panel app-section" aria-labelledby="statsTitle" hidden>
+        <h2 id="statsTitle">Collection</h2>
+        <div id="statsContainer">
+          <p class="muted">Loading stats...</p>
+        </div>
+      </section>
+
+      <footer>
+        <div id="status" class="status" role="status" aria-live="polite"></div>
+      </footer>
+    </main>
+  </body>
+</html>
