@@ -424,7 +424,7 @@ The node-cron-powered automation engine runs five scheduled tasks:
 
 ## API Reference
 
-Interactive Swagger/OpenAPI documentation is available at `http://localhost:3000/api-docs` when the backend is running.
+Interactive Swagger/OpenAPI documentation is available at `http://localhost:3000/api-docs` when the backend is running. For customer-facing integration guidance with auth, entitlement behavior, endpoint examples, and error shapes, see [docs/API_GUIDE.md](docs/API_GUIDE.md).
 
 ### Authentication
 
