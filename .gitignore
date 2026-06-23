@@ -31,6 +31,8 @@ pids
 archives/
 uploads/
 *.html
+# Browser extension popup source.
+!extension/popup/popup.html
 *.pdf
 *.png
 !extension/icons/*.png
