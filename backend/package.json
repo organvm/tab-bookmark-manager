@@ -9,7 +9,8 @@
     "test": "jest --coverage",
     "test:auth": "NODE_ENV=test JWT_SECRET=testsecret jest --forceExit --detectOpenHandles src/__tests__/auth.test.js",
     "test:bulk": "NODE_ENV=test JWT_SECRET=testsecret jest --forceExit --detectOpenHandles src/__tests__/bulk.test.js",
-    "lint": "eslint src/**/*.js"
+    "lint": "eslint src/**/*.js",
+    "dashboard": "node scripts/dashboard.js"
   },
   "keywords": [
     "bookmarks",
