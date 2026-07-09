@@ -1,10 +1,21 @@
 const { pool } = require('./database');
 
+function prepareSqliteStatement(text, params = []) {
+  const values = [];
+  const sql = text.replace(/\$(\d+)/g, (_, index) => {
+    values.push(params[Number(index) - 1]);
+    return '?';
+  });
+
+  return { sql, params: values };
+}
+
 const db = {
   query: (text, params) => {
     if (process.env.NODE_ENV === 'test') {
+      const statement = prepareSqliteStatement(text, params);
       return new Promise((resolve, reject) => {
-        pool.all(text.replace(/\$(\d+)/g, '?'), params, (err, rows) => {
+        pool.all(statement.sql, statement.params, (err, rows) => {
           if (err) {
             return reject(err);
           }
@@ -16,8 +27,9 @@ const db = {
   },
   run: (text, params) => {
     if (process.env.NODE_ENV === 'test') {
+      const statement = prepareSqliteStatement(text, params);
       return new Promise((resolve, reject) => {
-        pool.run(text.replace(/\$(\d+)/g, '?'), params, function (err) {
+        pool.run(statement.sql, statement.params, function (err) {
           if (err) {
             return reject(err);
           }
@@ -29,8 +41,9 @@ const db = {
   },
   get: (text, params) => {
     if (process.env.NODE_ENV === 'test') {
+      const statement = prepareSqliteStatement(text, params);
       return new Promise((resolve, reject) => {
-        pool.get(text.replace(/\$(\d+)/g, '?'), params, (err, row) => {
+        pool.get(statement.sql, statement.params, (err, row) => {
           if (err) {
             return reject(err);
           }
