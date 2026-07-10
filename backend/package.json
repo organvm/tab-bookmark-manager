@@ -30,7 +30,7 @@
     "helmet": "^7.1.0",
     "joi": "^17.13.4",
     "jsonwebtoken": "^9.0.2",
-    "morgan": "^1.10.0",
+    "morgan": "^1.11.0",
     "node-cron": "^3.0.3",
     "pg": "^8.11.3",
     "puppeteer": "^25.1.0",
