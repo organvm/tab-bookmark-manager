@@ -148,8 +148,11 @@ exports.detectStaleTabs = async (req, res) => {
     const { days = 30 } = req.query;
     const userId = req.user.id;
     
+    const staleTabExpr = process.env.NODE_ENV === 'test'
+      ? `strftime('%Y-%m-%d %H:%M:%f', 'now', '-' || ? || ' days')`
+      : `NOW() - INTERVAL '$1 days'`;
     const result = await db.query(
-      `SELECT * FROM tabs WHERE (last_accessed < ${process.env.NODE_ENV === 'test' ? `strftime('%Y-%m-%d %H:%M:%f', 'now', '-' || ? || ' days')` : `NOW() - INTERVAL '$1 days'`} OR (last_accessed IS NULL AND created_at < ${process.env.NODE_ENV === 'test' ? `strftime('%Y-%m-%d %H:%M:%f', 'now', '-' || ? || ' days')` : `NOW() - INTERVAL '$1 days'`})) AND user_id = $2 ORDER BY last_accessed ASC`,
+      `SELECT * FROM tabs WHERE (last_accessed < ${staleTabExpr} OR (last_accessed IS NULL AND created_at < ${staleTabExpr})) AND user_id = $2 ORDER BY last_accessed ASC`,
       [days, userId]
     );
     

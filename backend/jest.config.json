@@ -7,7 +7,7 @@
     "!src/index.js"
   ],
   "testMatch": [
-    "**/__tests__/**/*.js",
+    "**/__tests__/**/*.test.js",
     "**/?(*.)+(spec|test).js"
   ],
   "setupFilesAfterEnv": [

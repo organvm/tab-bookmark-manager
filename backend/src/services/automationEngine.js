@@ -30,8 +30,11 @@ class AutomationEngine {
       cron.schedule('0 2 * * *', async () => {
         logger.info('Cleaning up old rejected suggestions');
         try {
+          const cutoff = process.env.NODE_ENV === 'test'
+            ? `strftime('%Y-%m-%d %H:%M:%f', 'now', '-30 days')`
+            : `NOW() - INTERVAL '30 days'`;
           const result = await db.run(
-            `DELETE FROM suggestions WHERE status = 'rejected' AND created_at < ${process.env.NODE_ENV === 'test' ? "strftime('%Y-%m-%d %H:%M:%f', 'now', '-30 days')" : "NOW() - INTERVAL '30 days'"}`
+            `DELETE FROM suggestions WHERE status = 'rejected' AND created_at < ${cutoff}`
           );
           logger.info(`Deleted ${result.rowCount} old suggestions`);
         } catch (error) {
@@ -50,8 +53,11 @@ class AutomationEngine {
           
           for (const user of users.rows) {
             // Get tabs older than 90 days that are not archived
+            const cutoff = process.env.NODE_ENV === 'test'
+              ? `strftime('%Y-%m-%d %H:%M:%f', 'now', '-90 days')`
+              : `NOW() - INTERVAL '90 days'`;
             const result = await db.query(
-              `SELECT id, url FROM tabs WHERE is_archived = FALSE AND user_id = $1 AND created_at < ${process.env.NODE_ENV === 'test' ? "strftime('%Y-%m-%d %H:%M:%f', 'now', '-90 days')" : "NOW() - INTERVAL '90 days'"} LIMIT 100`,
+              `SELECT id, url FROM tabs WHERE is_archived = FALSE AND user_id = $1 AND created_at < ${cutoff} LIMIT 100`,
               [user.id]
             );
 
