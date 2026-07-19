@@ -36,7 +36,7 @@ async function archivePage(url) {
     
     // Generate unique filename
     const timestamp = Date.now();
-    const urlHash = Buffer.from(url).toString('base64').replace(/[\/+=]/g, '_').substring(0, 20);
+    const urlHash = Buffer.from(url).toString('base64').replace(/[/+=]/g, '_').substring(0, 20);
     const basename = `${urlHash}_${timestamp}`;
     
     // Save HTML
