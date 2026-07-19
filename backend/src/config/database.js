@@ -107,6 +107,17 @@ async function initializeDatabase() {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS api_keys (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        name VARCHAR(100) NOT NULL,
+        key_hash VARCHAR(64) UNIQUE NOT NULL,
+        key_prefix VARCHAR(64) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        last_used_at TIMESTAMP,
+        revoked_at TIMESTAMP
+      );
+
       CREATE TABLE IF NOT EXISTS user_devices (
         id SERIAL PRIMARY KEY,
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -134,6 +145,8 @@ async function initializeDatabase() {
       ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_customer_id VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_id VARCHAR(255);
       ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_current_period_end TIMESTAMP;
+      CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
+      CREATE INDEX IF NOT EXISTS idx_api_keys_key_hash ON api_keys(key_hash);
     `);
     logger.info('Database schema initialized successfully');
   } catch (err) {
@@ -233,6 +246,23 @@ async function initializeTestDatabase() {
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
       `);
+
+      pool.run(`
+        CREATE TABLE api_keys (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER NOT NULL,
+          name TEXT NOT NULL,
+          key_hash TEXT UNIQUE NOT NULL,
+          key_prefix TEXT NOT NULL,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          last_used_at DATETIME,
+          revoked_at DATETIME,
+          FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+      `);
+
+      pool.run('CREATE INDEX idx_api_keys_user_id ON api_keys(user_id);');
+      pool.run('CREATE INDEX idx_api_keys_key_hash ON api_keys(key_hash);');
 
       pool.run(`
         CREATE TABLE user_devices (

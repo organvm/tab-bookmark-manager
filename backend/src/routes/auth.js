@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
+const authMiddleware = require('../middleware/authMiddleware');
 
 /**
  * @swagger
@@ -89,6 +90,86 @@ router.post('/register', authController.register);
  *         description: Internal server error
  */
 router.post('/login', authController.login);
+
+/**
+ * @swagger
+ * /api/auth/verify:
+ *   get:
+ *     summary: Verify the current JWT or API key
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKeyAuth: []
+ *     responses:
+ *       200:
+ *         description: Credentials are valid
+ *       401:
+ *         description: Invalid or missing credentials
+ */
+router.get('/verify', authMiddleware, authController.verify);
+
+/**
+ * @swagger
+ * /api/auth/api-keys:
+ *   post:
+ *     summary: Issue a new API key for the authenticated user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 maxLength: 100
+ *     responses:
+ *       201:
+ *         description: API key created. The raw key is returned only once.
+ *       401:
+ *         description: Unauthorized
+ */
+router.post('/api-keys', authMiddleware, authController.createApiKey);
+
+/**
+ * @swagger
+ * /api/auth/api-keys:
+ *   get:
+ *     summary: List API keys for the authenticated user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: API keys for the current user
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/api-keys', authMiddleware, authController.listApiKeys);
+
+/**
+ * @swagger
+ * /api/auth/api-keys/{id}:
+ *   delete:
+ *     summary: Revoke an API key
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: API key revoked successfully
+ *       404:
+ *         description: API key not found
+ */
+router.delete('/api-keys/:id', authMiddleware, authController.revokeApiKey);
 
 /**
  * @swagger

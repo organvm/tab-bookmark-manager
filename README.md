@@ -547,6 +547,8 @@ Create `backend/.env` from the provided example:
 PORT=3000
 NODE_ENV=development
 JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=1h
+API_KEY_PREFIX=tbm_
 
 # Database
 DB_HOST=localhost
@@ -579,6 +581,8 @@ LEMON_SQUEEZY_WEBHOOK_SECRET=
 STRIPE_WEBHOOK_SECRET=
 BILLING_WEBHOOK_SECRET=
 ```
+
+Authentication configuration lives in `backend/.env`. `JWT_SECRET` must be a strong, private value in production, `JWT_EXPIRES_IN` controls login token lifetime, and `API_KEY_PREFIX` optionally changes the prefix used for generated API keys. Issued API keys are shown once, stored only as SHA-256 hashes, and can be sent to protected endpoints with `X-API-Key: <key>` or `Authorization: Bearer <key>`. API key management endpoints require a JWT session.
 
 ### ML Service Environment Variables
 

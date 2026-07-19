@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Tab & Bookmark Manager provides a comprehensive RESTful API with OpenAPI/Swagger documentation. All API endpoints require authentication except for registration and login.
+The Tab & Bookmark Manager provides a comprehensive RESTful API with OpenAPI/Swagger documentation. Primary product endpoints require authentication; registration, login, billing webhooks, and health checks stay public.
 
 ## Interactive Documentation
 
@@ -10,17 +10,32 @@ Access the interactive Swagger UI at: `http://localhost:3000/api-docs`
 
 ## Authentication
 
-The API uses JWT (JSON Web Token) based authentication. After logging in, include the token in the Authorization header:
+The API uses JWT (JSON Web Token) based authentication for browser sessions. After logging in, include the token in the Authorization header:
 
 ```
 Authorization: Bearer <your-jwt-token>
 ```
+
+For scripts, integrations, or CLI-style usage, issue an API key with `POST /api/auth/api-keys` using a JWT. API keys are stored as SHA-256 hashes, and the raw key is returned only once. Send API keys with either header:
+
+```
+X-API-Key: <your-api-key>
+Authorization: Bearer <your-api-key>
+```
+
+Configure auth secrets in `backend/.env`: `JWT_SECRET` signs JWTs, `JWT_EXPIRES_IN` controls session token lifetime, and optional `API_KEY_PREFIX` controls generated key prefixes. Never commit real `.env` files or issued API keys.
+
+API key management endpoints (`POST`, `GET`, and `DELETE /api/auth/api-keys`) require a JWT session. Issued API keys authenticate primary product endpoints and `/api/auth/verify`, but they cannot issue additional keys.
 
 ## API Endpoints
 
 ### Authentication
 - **POST** `/api/auth/register` - Register a new user
 - **POST** `/api/auth/login` - Login and receive JWT token
+- **GET** `/api/auth/verify` - Verify a JWT or API key
+- **POST** `/api/auth/api-keys` - Issue an API key for the authenticated user
+- **GET** `/api/auth/api-keys` - List API keys for the authenticated user
+- **DELETE** `/api/auth/api-keys/:id` - Revoke an API key
 - **POST** `/api/auth/logout` - Logout and revoke token
 
 ### Billing and Entitlements
@@ -140,6 +155,44 @@ Response:
 }
 ```
 
+### Issue API Key
+```bash
+POST /api/auth/api-keys
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "name": "local-cli"
+}
+```
+
+Response:
+```json
+{
+  "id": 1,
+  "name": "local-cli",
+  "key": "tbm_...",
+  "keyPrefix": "tbm_12345678",
+  "createdAt": "2025-11-12T18:00:00.000Z",
+  "message": "Store this API key now. It will not be shown again."
+}
+```
+
+### Verify API Key
+```bash
+GET /api/auth/verify
+X-API-Key: <api-key>
+```
+
+Response:
+```json
+{
+  "authenticated": true,
+  "userId": 1,
+  "authType": "api_key"
+}
+```
+
 ### Get Profile
 ```bash
 GET /api/user/profile
@@ -211,7 +264,7 @@ Response:
 ## Best Practices
 
 1. **Always use HTTPS** in production
-2. **Store JWT tokens securely** (e.g., httpOnly cookies)
+2. **Store JWT tokens and API keys securely** (e.g., httpOnly cookies for sessions, OS secret stores for API keys)
 3. **Implement token refresh** for long-lived sessions
 4. **Handle errors gracefully** on the client side
 5. **Use pagination** for large result sets
